@@ -8,13 +8,13 @@
 
 class Die {
 private:
-	std::string colour;
-	int currentDieValue;
+	std::string m_colour;
+	int m_currentDieValue;
 public:
 	Die(std::string colour = "white");
-	const std::string* const getColour();
+	const std::string& getColour();
 	void roll();
-	const int* const getCurrentDieValue();
+	const int& getCurrentDieValue();
 };
 
 #endif // !DIE_H

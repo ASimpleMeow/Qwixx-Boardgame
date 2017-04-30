@@ -4,11 +4,10 @@
 #include "Player.h"
 class HumanPlayer : public Player {
 private:
-	std::string name;
+	std::vector<std::string>& getRow(const int& rowNum);
 public:
-	HumanPlayer(bool isHuman, std::string name = "Default Player");
-	using Player::move;
-	void move();
+	HumanPlayer(bool isHuman, int playerNo);
+	virtual bool move(int& board, int& value);
 };
 
 #endif // !HUMANPLAYER_H

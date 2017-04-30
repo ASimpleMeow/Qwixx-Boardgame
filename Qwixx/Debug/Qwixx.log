@@ -1,3 +1,4 @@
-﻿  Main.cpp
+﻿  HumanPlayer.cpp
+c:\users\oleksandr\desktop\other\c++  projects\workspace\qwixx\qwixx\player.h(32): warning C4227: anachronism used: qualifiers on reference are ignored
   Qwixx.vcxproj -> C:\Users\Oleksandr\Desktop\Other\C++  Projects\workspace\Qwixx\Debug\Qwixx.exe
   Qwixx.vcxproj -> C:\Users\Oleksandr\Desktop\Other\C++  Projects\workspace\Qwixx\Debug\Qwixx.pdb (Full PDB)

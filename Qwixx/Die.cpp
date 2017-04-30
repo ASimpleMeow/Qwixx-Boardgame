@@ -4,18 +4,18 @@
 
 Die::Die(std::string colour) {
 	std::transform(colour.begin(), colour.end(), colour.begin(), ::tolower);
-	this->colour = colour;
+	this->m_colour = colour;
 	srand(static_cast<unsigned int>(time(0)));
 }
 
-const std::string* const Die::getColour(){
-	return &(this->colour);
+const std::string& Die::getColour(){
+	return this->m_colour;
 }
 
 void Die::roll() {
-	this->currentDieValue = (rand() % 6) + 1;
+	this->m_currentDieValue = (rand() % 6) + 1;
 }
 
-const int* const Die::getCurrentDieValue() {
-	return &(this->currentDieValue);
+const int& Die::getCurrentDieValue() {
+	return this->m_currentDieValue;
 }

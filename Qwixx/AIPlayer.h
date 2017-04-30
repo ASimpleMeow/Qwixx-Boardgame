@@ -10,11 +10,10 @@ private:
 	int checkGreen();
 	int checkBlue();
 	int checkLose();
-	void commitMove(std::vector<int>* const row);
+	void commitMove(const std::vector<std::string>& row);
 public:
-	AIPlayer(bool isHuman);
-	using Player::move;
-	void move();
+	AIPlayer(bool isHuman, int playerNo);
+	virtual bool move(const std::vector<Die*>& dice, bool& makeTwoMoves);
 };
 
 #endif // !AIPLAYER_H

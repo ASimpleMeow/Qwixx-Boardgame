@@ -1,11 +1,13 @@
 #include "AIPlayer.h"
 
 
-AIPlayer::AIPlayer(bool isHuman) : Player(isHuman) {
+AIPlayer::AIPlayer(bool isHuman, int playerNo) 
+: Player(isHuman, playerNo)
+{}
 
-}
-
-void AIPlayer::move() {
+bool AIPlayer::move(const std::vector<Die*>& dice, bool& makeTwoMoves) {
+	return true;
+	/*
 	int largestPotentialScore = 0;
 	int decision = 0;
 	int potentialScores[4] = { checkRed(), checkYellow(), checkGreen(), checkBlue() };
@@ -28,11 +30,11 @@ void AIPlayer::move() {
 		else commitMove(this->getBlue());
 	}else {
 		incrementFails();
-	}
+	}*/
 }
 
-void AIPlayer::commitMove(std::vector<int>* const row) {
-
+void AIPlayer::commitMove(const std::vector<std::string>& row) {
+	//TO-DO
 }
 
 int AIPlayer::checkRed() {
