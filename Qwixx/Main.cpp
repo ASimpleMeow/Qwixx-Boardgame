@@ -13,8 +13,9 @@ void displayMenu();
 void printRows(Player& player);
 void displayPlayerOptions();
 bool endGame();
-void rollDice(std::vector<Die*>& const dice);
-bool makeMove(Player& currentPlayer, std::vector<Die*>& dice, bool& makeTwoMoves);
+void rollDice(std::vector<Die>& const dice);
+bool makeMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves);
+void makeSecondMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves, std::string& prompt);
 bool carryOutChoice(int& userChoice, int& value, Player& currentPlayer);
 
 int main() {
@@ -23,12 +24,10 @@ int main() {
 	//console window from closing (even when exceptions occur)
 	KeepRunning kr;
 
-
-
 	int userChoice = 0;			//User chocie for multiple questions
-	Player* currentPlayer;
-	int currentPlayerNo = 0;
-	std::vector<Die*> dice{ new Die,new Die,new Die("red"),new Die("yellow"),new Die("green"),new Die("blue") };
+	Player* currentPlayer;		//The currentplayer Player
+	int currentPlayerNo = 0;	//The index for the current player
+	std::vector<Die> dice{ Die(), Die(), Die("red"), Die("yellow"),Die("green"),Die("blue") };
 	std::vector<Player*> players;
 
 	std::string prompt = "Your choice : ";
@@ -68,9 +67,7 @@ int main() {
 		bool makeTwoMoves = true;
 
 		for (int i = 0; i < players.size(); ++i) {
-			printRows(*currentPlayer);
-			makeMove(*currentPlayer, dice, makeTwoMoves);
-			makeTwoMoves = false;
+			while (!makeMove(*currentPlayer, dice, makeTwoMoves)) {}
 			currentPlayerNo = ++currentPlayerNo%players.size();
 			currentPlayer = players.at(currentPlayerNo);
 		}
@@ -80,15 +77,16 @@ int main() {
 	return 0;
 }
 
-bool makeMove(Player& currentPlayer, std::vector<Die*>& dice, bool& makeTwoMoves) {
-	int value = dice[0]->getCurrentDieValue() + dice[1]->getCurrentDieValue();
+bool makeMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves) {
+	int value = dice[0].getCurrentDieValue() + dice[1].getCurrentDieValue();
 	int userChoice = 0;
+	printRows(currentPlayer);
 	std::string prompt = "Select an option from the list : ";
 	if (currentPlayer.isHuman()) {
 		std::cout << "\nTwo white dice value : " << value << "\n";
 		displayPlayerOptions();
 		makeChoice(userChoice, prompt);
-		if (userChoice < 1 || userChoice > 2) {
+		if (userChoice != 1 && userChoice != 2) {
 			std::cout << "\n\nIncorrect option selected, please try again!\n\n";
 			return false;
 		} 
@@ -96,6 +94,8 @@ bool makeMove(Player& currentPlayer, std::vector<Die*>& dice, bool& makeTwoMoves
 			std::cout << "\n\nInvalid/Illegal move\n\n";
 			return false;
 		}
+		printRows(currentPlayer);
+		makeSecondMove(currentPlayer, dice, makeTwoMoves, prompt);
 		printRows(currentPlayer);
 		return true;
 	}
@@ -106,24 +106,47 @@ bool makeMove(Player& currentPlayer, std::vector<Die*>& dice, bool& makeTwoMoves
 	return true;
 }
 
+void makeSecondMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves, std::string& prompt) {
+	int userChoice = 0;
+	int value = 0;
+	while (makeTwoMoves) {
+		displayPlayerOptions();
+		makeChoice(userChoice, prompt);
+		if (userChoice != 1 && userChoice != 2) continue;
+		if (userChoice == 2) {
+			currentPlayer.incrementFails();
+			break;
+		}
+		prompt = "Select which white die to use (0/1) : ";
+		makeChoice(value, prompt);
+		if (value != 0 && value != 1) continue;
+		prompt = "Select a coloured die : ";
+		makeChoice(userChoice, prompt);
+		if (userChoice < 2 || userChoice >= dice.size()) continue;
+		value = dice[value].getCurrentDieValue() + dice[userChoice].getCurrentDieValue();
+		userChoice -= 2;
+		makeTwoMoves = !currentPlayer.move(userChoice, value);
+	}
+}
+
 bool carryOutChoice(int& userChoice, int& value, Player& currentPlayer) {
 	if (userChoice == 2) {
 		currentPlayer.incrementFails();
 		return true;
 	}
-	int board = 0;
-	std::cout << "What board do you want to use : ";
-	std::cin >> board;
-	if (board < 0 || board > 3) return false;
-	return currentPlayer.move(board, value);
+	int row = 0;
+	std::cout << "What row do you want to use : ";
+	std::cin >> row;
+	if (row < 0 || row > 3) return false;
+	return currentPlayer.move(row, value);
 }
 
-inline void rollDice(std::vector<Die*>& const dice) {
-	std::cout << "Rolling the Dice! \n";
+inline void rollDice(std::vector<Die>& const dice) {
+	std::cout << "\n\nRolling the Dice! \n";
 	int i = 0;
-	for (std::vector<Die*>::iterator iter = dice.begin(); iter != dice.end(); ++iter) {
-		(*iter)->roll();
-		std::cout << i << " : " <<(*iter)->getColour() << " : " << (*iter)->getCurrentDieValue()<< "\n";
+	for (std::vector<Die>::iterator iter = dice.begin(); iter != dice.end(); ++iter) {
+		(*iter).roll();
+		std::cout << i << " : " <<(*iter).getColour() << " :\t" << (*iter).getCurrentDieValue()<< "\n";
 		++i;
 	}
 	std::cout << "\n\n";
@@ -153,7 +176,7 @@ inline void printRows(Player& player) {
 
 inline void displayPlayerOptions() {
 	std::cout << "\n\nYour options : \n" <<
-		"1) Pick a board for your number\n" <<
+		"1) Pick a row for your number\n" <<
 		"2) Don't pick a number (pass and add to fails)\n";
 }
 

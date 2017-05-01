@@ -13,7 +13,8 @@ private:
 	void commitMove(const std::vector<std::string>& row);
 public:
 	AIPlayer(bool isHuman, int playerNo);
-	virtual bool move(const std::vector<Die*>& dice, bool& makeTwoMoves);
+	~AIPlayer();
+	virtual bool move(const std::vector<Die>& dice, bool& makeTwoMoves);
 };
 
 #endif // !AIPLAYER_H

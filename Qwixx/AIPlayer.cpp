@@ -5,7 +5,11 @@ AIPlayer::AIPlayer(bool isHuman, int playerNo)
 : Player(isHuman, playerNo)
 {}
 
-bool AIPlayer::move(const std::vector<Die*>& dice, bool& makeTwoMoves) {
+AIPlayer::~AIPlayer() {
+	Player::~Player();
+}
+
+bool AIPlayer::move(const std::vector<Die>& dice, bool& makeTwoMoves) {
 	return true;
 	/*
 	int largestPotentialScore = 0;

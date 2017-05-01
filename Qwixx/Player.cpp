@@ -2,34 +2,43 @@
 #include <iostream>
 
 Player::Player(bool isHuman, int playerNo) 
-:m_isHuman(isHuman), m_playerNo(playerNo)
-{}
-
-const std::vector<std::string>& Player::getRed() {
-	return this->m_red;
+:m_isHuman(isHuman), m_playerNo(playerNo){
+	m_rows = new std::vector<std::vector<std::string>*>();
+	m_rows->push_back(new std::vector<std::string>({ "2","3","4","5","6","7","8","9","10","11","12" }));
+	m_rows->push_back(new std::vector<std::string>({ "2","3","4","5","6","7","8","9","10","11","12" }));
+	m_rows->push_back(new std::vector<std::string>({ "12","11","10","9","8","7","6","5","4","3","2" }));
+	m_rows->push_back(new std::vector<std::string>({ "12","11","10","9","8","7","6","5","4","3","2" }));
 }
 
-const std::vector<std::string>& Player:: getYellow() {
-	return this->m_yellow;
+Player::~Player() {
+	for (std::vector<std::vector<std::string>*>::iterator iter = m_rows->begin(); iter != m_rows->end(); ++iter) {
+		delete (*iter);
+	}
+	delete m_rows;
+	m_rows = 0;
 }
 
-const std::vector<std::string>& Player::getGreen() {
-	return this->m_green;
+const std::vector<std::vector<std::string>*>* const Player::getBoard() {
+	return this->m_rows;
 }
 
-const std::vector<std::string>& Player::getBlue() {
-	return this->m_blue;
+bool Player::move(int& board, int& value) {
+	return false;
 }
 
-int Player::countScore() {
+bool Player::move(const std::vector<Die>& dice, bool& makeTwoMoves) {
+	return false;
+}
+
+int Player::countScore() const {
 	return 0;
 }
 
-int& Player::getFails() {
+int& Player::getFails(){
 	return this->m_fails;
 }
 
-int& Player::getPlayerNo() {
+int& Player::getPlayerNo(){
 	return this->m_playerNo;
 }
 
@@ -39,14 +48,6 @@ void Player::incrementFails() {
 
 const bool& const Player::isHuman() {
 	return this->m_isHuman;
-}
-
-bool Player::move(int& board, int& value) {
-	return true;
-}
-
-bool Player::move(const std::vector<Die*>& dice, bool& makeTwoMoves) {
-	return true;
 }
 
 void Player::printRow(const std::vector<std::string>& row) {
@@ -59,12 +60,12 @@ void Player::printRow(const std::vector<std::string>& row) {
 const std::string& const Player::printBoard() {
 
 	this->m_board = "0 : Red Row:     ";
-	printRow(this->getRed());
+	printRow(*m_rows->at(0));
 	this->m_board += "\n1 : Yellow Row:  "; 
-	printRow(this->getYellow());
+	printRow(*m_rows->at(1));
 	this->m_board += "\n2 : Green Row:   "; 
-	printRow(this->getGreen());
+	printRow(*m_rows->at(2));
 	this->m_board += "\n3 : Blue Row:    ";
-	printRow(this->getBlue());
+	printRow(*m_rows->at(3));
 	return this->m_board;
 }

@@ -3,10 +3,9 @@
 
 #include "Player.h"
 class HumanPlayer : public Player {
-private:
-	std::vector<std::string>& getRow(const int& rowNum);
 public:
 	HumanPlayer(bool isHuman, int playerNo);
+	~HumanPlayer();
 	virtual bool move(int& board, int& value);
 };
 
