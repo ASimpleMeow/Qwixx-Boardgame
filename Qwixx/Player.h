@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <algorithm>
 #include "Die.h"
 
 class Player {
@@ -17,7 +18,7 @@ public:
 	Player(bool isHuman, int playerNo);
 	virtual ~Player();
 	virtual bool move(int& board, int& value);
-	virtual bool move(const std::vector<Die>& dice, bool& makeTwoMoves);
+	virtual void move(const std::vector<Die>& dice, int& value, bool& makeTwoMoves);
 	int countScore() const;
 	const std::vector<std::vector<std::string>*>* const getBoard();
 	int& getFails();

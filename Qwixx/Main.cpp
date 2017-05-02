@@ -13,7 +13,7 @@ void displayMenu();
 void displayRules();
 void displayResults(std::vector<Player*>& players);
 void printRows(Player& player);
-int playerOptions(int& userChoice, const std::string& prompt);
+void playerOptions(int& userChoice, const std::string& prompt);
 bool endGame(std::vector<Player*>& players);
 void rollDice(std::vector<Die>& const dice);
 bool makeMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves);
@@ -82,14 +82,14 @@ int main() {
 }
 
 bool makeMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves) {
-	int value = dice[0].getCurrentDieValue() + dice[1].getCurrentDieValue();
-	int userChoice = 0;
-	bool fail = false;
-	std::string prompt = "Select an option from the list : ";
-	printRows(currentPlayer);
+	int value = dice.at(0).getCurrentDieValue() + dice.at(1).getCurrentDieValue();
 	if (currentPlayer.isHuman()) {
+		int userChoice = 0;
+		bool fail = false;
+		std::string prompt = "Select an option from the list : ";
+		printRows(currentPlayer);
 		std::cout << "\nTwo white dice value : " << value << "\n";
-		int userChoice = playerOptions(userChoice, prompt);
+		playerOptions(userChoice, prompt);
 		switch (userChoice) {
 			case 2:
 				if (!makeTwoMoves) return true;
@@ -111,10 +111,7 @@ bool makeMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves)
 		makeSecondMove(currentPlayer, fail, dice, makeTwoMoves, userChoice, prompt);
 		return true;
 	}
-
-	currentPlayer.move(dice, makeTwoMoves);
-	std::cout << "\n\nThe AI made some dumb move again -_- \n" <<
-		"Piece of shit never learns\n\n";
+	currentPlayer.move(dice, value, makeTwoMoves);
 	return true;
 }
 
@@ -151,16 +148,15 @@ void makeSecondMove(Player& currentPlayer, bool& fail, std::vector<Die>& dice, b
 	}
 }
 
-inline int playerOptions(int& userChoice, const std::string& prompt) {
+inline void playerOptions(int& userChoice, const std::string& prompt) {
 	std::cout << "\n\nYour options : \n" <<
 		"1) Pick a row for your number\n" <<
 		"2) Don't pick a number (pass and add to fails)\n";
 	makeChoice(userChoice, prompt);
 	if (userChoice != 1 && userChoice != 2) {
 		std::cout << "\n\nIncorrect option selected, please try again!\n\n";
-		return -1;
+		userChoice = -1;
 	}
-	return userChoice;
 }
 
 inline void rollDice(std::vector<Die>& const dice) {

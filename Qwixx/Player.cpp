@@ -1,5 +1,4 @@
 #include "Player.h"
-#include <iostream>
 
 Player::Player(bool isHuman, int playerNo) 
 :m_isHuman(isHuman), m_playerNo(playerNo){
@@ -26,8 +25,7 @@ bool Player::move(int& board, int& value) {
 	return false;
 }
 
-bool Player::move(const std::vector<Die>& dice, bool& makeTwoMoves) {
-	return false;
+void Player::move(const std::vector<Die>& dice, int& value, bool& makeTwoMoves) {
 }
 
 int Player::countScore() const {

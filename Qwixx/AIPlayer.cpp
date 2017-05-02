@@ -9,56 +9,66 @@ AIPlayer::~AIPlayer() {
 	Player::~Player();
 }
 
-bool AIPlayer::move(const std::vector<Die>& dice, bool& makeTwoMoves) {
-	return true;
-	/*
-	int largestPotentialScore = 0;
-	int decision = 0;
-	int potentialScores[4] = { checkRed(), checkYellow(), checkGreen(), checkBlue() };
+void AIPlayer::move(const std::vector<Die>& dice, int& value, bool& makeTwoMoves) {
+	makeTwoMoves ? doubleMove(dice, value) : singleMove(dice, value);
+}
 
-	//Determine which row will give the largest scrore
-	for (int i = 0; i < 4; ++i) {
-		if (potentialScores[i] > largestPotentialScore) {
-			largestPotentialScore = potentialScores[i];
-			decision = i;
+void AIPlayer::singleMove(const std::vector<Die>& dice, int& value) {
+	if (3 - value >= 0) {	//Check red and yellow rows nearest to the start
+		for (int i = 0; i < 2; ++i) {
+			if (m_rows->at(i)->at(value - 2) != "X" || m_rows->at(i)->at(value - 2) != "-") {
+				completeMove(i, value);
+				return;
+			}
+		}
+
+	} else if (3 - (12 - value) >= 0) {	//Check green and blue rows nearest to the start
+		for (int i = 2; i < 4; ++i) {
+			if (m_rows->at(i)->at(12 - value) != "X" || m_rows->at(i)->at(12 - value) != "-") {
+				completeMove(i, value);
+				return;
+			}
+		}
+	} else { //Try to determine the closest next position of no more than two from the last
+		std::vector<std::string>::reverse_iterator rowIter;
+		int shortestDistance = 12;
+		int rowIndex = 0;
+		for (std::vector<std::vector<std::string>*>::iterator rowsIter = m_rows->begin(); rowsIter != m_rows->end(); ++rowsIter) {
+			if (std::count((*rowsIter)->begin(), (*rowsIter)->end(), "X") == 0) continue;
+			for (rowIter = (*rowsIter)->rbegin(); rowIter != (*rowsIter)->rend(); ++rowIter) {
+				if (*rowIter == "X") {
+					int distance = 12 - std::distance((*rowsIter)->rbegin(), rowIter) + 2;
+					if (value - distance > 0 && value - distance < shortestDistance) {
+						shortestDistance = distance;
+						rowIndex = std::distance(m_rows->begin(), rowsIter);
+						break;
+					}
+				}
+			}
+		}
+		if (shortestDistance <= 2) {
+			completeMove(rowIndex, value);
+		}else if (m_fails > 3) {
+			completeMove(rowIndex, value);
+		}else if (shortestDistance > 2 && m_fails < 2) {
+			incrementFails();
+		} else {
+			completeMove(rowIndex, value);
 		}
 	}
-
-	//Check if the scrore is above a certain threshold
-	//ie, if making this move is worth it
-	if (potentialScores[decision] > checkLose()) {
-		//Do the move
-		if (decision == 0) commitMove(this->getRed());
-		else if (decision == 1) commitMove(this->getYellow());
-		else if (decision == 2) commitMove(this->getGreen());
-		else commitMove(this->getBlue());
-	}else {
-		incrementFails();
-	}*/
 }
 
-void AIPlayer::commitMove(const std::vector<std::string>& row) {
-	//TO-DO
+void AIPlayer::doubleMove(const std::vector<Die>& dice, int& value) {
+
 }
 
-int AIPlayer::checkRed() {
-	return 0;
-}
-
-int AIPlayer::checkYellow() {
-	return 0;
-}
-
-int AIPlayer::checkGreen() {
-	return 0;
-}
-
-int AIPlayer::checkBlue() {
-	return 0;
-}
-
-//Checks that if AI fails to make a move, the game will end with
-//the AI losing
-int AIPlayer::checkLose() {
-	return 0;
+void AIPlayer::completeMove(int& board, int& value) {
+	std::vector<std::string>& row = *m_rows->at(board);
+	std::vector<std::string>::reverse_iterator iter;
+	iter = (board < 2) ? row.rend() - (value - 2) : row.rend() - (12 - value);
+	for (; iter != row.rend(); ++iter) {
+		if (*iter == "X") break;
+		*iter = "-";
+	}
+	row[(board<2) ? value - 2 : 12 - value] = "X";
 }
