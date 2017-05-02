@@ -1,6 +1,5 @@
 #include "HumanPlayer.h"
 
-
 HumanPlayer::HumanPlayer(bool isHuman, int playerNo) : 
 Player(isHuman, playerNo)
 {}
@@ -11,8 +10,10 @@ HumanPlayer::~HumanPlayer() {
 
 bool HumanPlayer::move(int& board, int& value) {
 	std::vector<std::string>& row = *(m_rows->at(board));
-	if (row.at(value - 2) == "X" || row.at(value - 2) == "-") {
-		return false;
+	if (board < 2) {
+		if (row.at(value - 2) == "X" || row.at(value - 2) == "-") return false;
+	}else {
+		if (row.at(12 - value) == "X" || row.at(12 - value) == "-") return false;
 	}
 	std::vector<std::string>::reverse_iterator iter;
 	iter = (board < 2) ? row.rend() - (value - 2) : row.rend() - (12 - value);
