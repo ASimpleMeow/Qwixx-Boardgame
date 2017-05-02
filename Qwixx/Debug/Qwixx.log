@@ -1,8 +1,8 @@
 ﻿  Main.cpp
 c:\users\oleksandr\desktop\other\c++  projects\workspace\qwixx\qwixx\player.h(27): warning C4227: anachronism used: qualifiers on reference are ignored
-c:\users\oleksandr\desktop\other\c++  projects\workspace\qwixx\qwixx\main.cpp(16): warning C4227: anachronism used: qualifiers on reference are ignored
-c:\users\oleksandr\desktop\other\c++  projects\workspace\qwixx\qwixx\main.cpp(69): warning C4018: '<': signed/unsigned mismatch
-c:\users\oleksandr\desktop\other\c++  projects\workspace\qwixx\qwixx\main.cpp(125): warning C4018: '>=': signed/unsigned mismatch
-c:\users\oleksandr\desktop\other\c++  projects\workspace\qwixx\qwixx\main.cpp(144): warning C4227: anachronism used: qualifiers on reference are ignored
+c:\users\oleksandr\desktop\other\c++  projects\workspace\qwixx\qwixx\main.cpp(18): warning C4227: anachronism used: qualifiers on reference are ignored
+c:\users\oleksandr\desktop\other\c++  projects\workspace\qwixx\qwixx\main.cpp(70): warning C4018: '<': signed/unsigned mismatch
+c:\users\oleksandr\desktop\other\c++  projects\workspace\qwixx\qwixx\main.cpp(138): warning C4018: '>=': signed/unsigned mismatch
+c:\users\oleksandr\desktop\other\c++  projects\workspace\qwixx\qwixx\main.cpp(157): warning C4227: anachronism used: qualifiers on reference are ignored
   Qwixx.vcxproj -> C:\Users\Oleksandr\Desktop\Other\C++  Projects\workspace\Qwixx\Debug\Qwixx.exe
   Qwixx.vcxproj -> C:\Users\Oleksandr\Desktop\Other\C++  Projects\workspace\Qwixx\Debug\Qwixx.pdb (Full PDB)

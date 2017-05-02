@@ -1,22 +1,23 @@
 //Qwixx Program
 
 #include <iostream>
+#include <algorithm>
 #include "HumanPlayer.h"
 #include "AIPlayer.h"
 #include "Die.h"
 #include "KeepRunning.h"
 
-void displayRules();
 void makeChoice(int& choice,const std::string& prompt);
 bool makeChoiceYesNo(const std::string& prompt);
 void displayMenu();
+void displayRules();
+void displayResults(std::vector<Player*>& players);
 void printRows(Player& player);
-void displayPlayerOptions();
-bool endGame();
+int playerOptions(int& userChoice, const std::string& prompt);
+bool endGame(std::vector<Player*>& players);
 void rollDice(std::vector<Die>& const dice);
 bool makeMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves);
-void makeSecondMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves, std::string& prompt);
-bool carryOutChoice(int& userChoice, int& value, Player& currentPlayer);
+void makeSecondMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves, int& userChocie, std::string& prompt);
 
 int main() {
 
@@ -62,7 +63,7 @@ int main() {
 
 	currentPlayer = players.at(currentPlayerNo);
 
-	while (!endGame()) {
+	while (!endGame(players)) {
 		rollDice(dice);
 		bool makeTwoMoves = true;
 
@@ -74,28 +75,36 @@ int main() {
 		currentPlayerNo = ++currentPlayerNo%players.size();
 		currentPlayer = players.at(currentPlayerNo);
 	}
+	displayResults(players);
 	return 0;
 }
 
 bool makeMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves) {
 	int value = dice[0].getCurrentDieValue() + dice[1].getCurrentDieValue();
 	int userChoice = 0;
-	printRows(currentPlayer);
 	std::string prompt = "Select an option from the list : ";
+	printRows(currentPlayer);
 	if (currentPlayer.isHuman()) {
 		std::cout << "\nTwo white dice value : " << value << "\n";
-		displayPlayerOptions();
-		makeChoice(userChoice, prompt);
-		if (userChoice != 1 && userChoice != 2) {
-			std::cout << "\n\nIncorrect option selected, please try again!\n\n";
-			return false;
-		} 
-		if (!carryOutChoice(userChoice, value, currentPlayer)) {
-			std::cout << "\n\nInvalid/Illegal move\n\n";
-			return false;
+		int userChoice = playerOptions(userChoice, prompt);
+		switch (userChoice) {
+			case 2:
+				currentPlayer.incrementFails();
+				return true;
+			case 1:
+				prompt = "What row do you want to use : ";
+				makeChoice(userChoice, prompt);
+				if (userChoice < 0 || userChoice > 3) return false;
+				short int xCount;
+				xCount = std::count(currentPlayer.getBoard()->at(userChoice)->begin(), currentPlayer.getBoard()->at(userChoice)->end(), "X");
+				if (value == std::stoi(currentPlayer.getBoard()->at(userChoice)->back()) && xCount < 5) return false;
+				else if(value == std::stoi(currentPlayer.getBoard()->at(userChoice)->back())) dice.erase(dice.begin() + userChoice+2);
+				if (currentPlayer.move(userChoice, value)) break;
+			default:
+				return false;
 		}
 		printRows(currentPlayer);
-		makeSecondMove(currentPlayer, dice, makeTwoMoves, prompt);
+		makeSecondMove(currentPlayer, dice, makeTwoMoves, userChoice, prompt);
 		printRows(currentPlayer);
 		return true;
 	}
@@ -106,16 +115,20 @@ bool makeMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves)
 	return true;
 }
 
-void makeSecondMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves, std::string& prompt) {
-	int userChoice = 0;
+void makeSecondMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves, int& userChoice, std::string& prompt) {
+	prompt = "Select an option from the list : ";
+	userChoice = 0;
 	int value = 0;
 	while (makeTwoMoves) {
-		displayPlayerOptions();
-		makeChoice(userChoice, prompt);
-		if (userChoice != 1 && userChoice != 2) continue;
-		if (userChoice == 2) {
-			currentPlayer.incrementFails();
-			break;
+		playerOptions(userChoice, prompt);
+		switch (userChoice) {
+			case 2:
+				currentPlayer.incrementFails();
+				return;
+			case 1:
+				break;
+			default:
+				continue;
 		}
 		prompt = "Select which white die to use (0/1) : ";
 		makeChoice(value, prompt);
@@ -129,16 +142,16 @@ void makeSecondMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwo
 	}
 }
 
-bool carryOutChoice(int& userChoice, int& value, Player& currentPlayer) {
-	if (userChoice == 2) {
-		currentPlayer.incrementFails();
-		return true;
+inline int playerOptions(int& userChoice, const std::string& prompt) {
+	std::cout << "\n\nYour options : \n" <<
+		"1) Pick a row for your number\n" <<
+		"2) Don't pick a number (pass and add to fails)\n";
+	makeChoice(userChoice, prompt);
+	if (userChoice != 1 && userChoice != 2) {
+		std::cout << "\n\nIncorrect option selected, please try again!\n\n";
+		return -1;
 	}
-	int row = 0;
-	std::cout << "What row do you want to use : ";
-	std::cin >> row;
-	if (row < 0 || row > 3) return false;
-	return currentPlayer.move(row, value);
+	return userChoice;
 }
 
 inline void rollDice(std::vector<Die>& const dice) {
@@ -152,7 +165,18 @@ inline void rollDice(std::vector<Die>& const dice) {
 	std::cout << "\n\n";
 }
 
-bool endGame() {
+bool endGame(std::vector<Player*>& players) {
+	int count = 0;
+	std::vector<std::vector<std::string>*>::const_iterator boardIter;
+	for (std::vector<Player*>::const_iterator playerIter = players.begin(); playerIter != players.end(); ++playerIter) {
+		if ((*playerIter)->getFails() >= 4) return true;
+		boardIter = (*playerIter)->getBoard()->begin();
+		for (; boardIter != (*(*playerIter)->getBoard()).end(); ++boardIter) {
+			if ((*boardIter)->back() == "X") count++;
+			if (count >= 2) return true;
+		}
+		count = 0;
+	}
 	return false;
 }
 
@@ -174,11 +198,20 @@ inline void printRows(Player& player) {
 	std::cout << player.printBoard() << "\n";
 }
 
-inline void displayPlayerOptions() {
-	std::cout << "\n\nYour options : \n" <<
-		"1) Pick a row for your number\n" <<
-		"2) Don't pick a number (pass and add to fails)\n";
+void displayResults(std::vector<Player*>& players) {
+	unsigned int score;
+	std::vector<unsigned int> scoringChart{ 1,3,6,10,15,21,28,36,45,55,66,78 };
+	for (std::vector<Player*>::iterator iter = players.begin(); iter != players.end(); ++iter) {
+		score = 0;
+		for (int row = 0; row < 4; ++row) {
+			int xCount = std::count((*iter)->getBoard()->at(row)->begin(), (*iter)->getBoard()->at(row)->end(), "X");
+			score += (xCount > 0)? scoringChart.at(xCount - 1) : 0;
+		}
+		score -= (*iter)->getFails() * 10;
+		std::cout << ((*iter)->isHuman() ? "Human " : "AI ") << "Player " << (*iter)->getPlayerNo()<<" scored " << score << "\n";
+	}
 }
+
 
 void displayMenu() {
 	std::cout << "\nMenu Screen \n" <<
