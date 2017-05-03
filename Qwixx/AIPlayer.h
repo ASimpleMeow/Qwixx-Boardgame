@@ -5,13 +5,20 @@
 
 class AIPlayer : public Player {
 private:
-	void singleMove(const std::vector<Die>& dice, int& value);
-	void doubleMove(const std::vector<Die>& dice, int& value);
-	void completeMove(int& board, int& value);
+	bool singleMove(const int& value);
+	void doubleMove(std::vector<Die>& dice, int& value);
+	bool completeMove(const int& board, const int& value);
+	bool checkRedYellow(const int& value, const int& rowIndex);
+	bool checkGreenBlue(const int& value, const int& rowIndex);
+	bool moveRedYellow(const int& value, const int& rowIndex);
+	bool moveGreenBlue(const int& value, const int& rowIndex);
+	bool checkShortestDistance(int start, int end, const int& value, int minDistance);
+	void getColourIndex(std::vector<Die>& dice, int& index, bool smallestSize);
+	bool finalAttempt(std::vector<Die>& dice, int& value);
 public:
 	AIPlayer(bool isHuman, int playerNo);
 	~AIPlayer();
-	virtual void move(const std::vector<Die>& dice, int& value, bool& makeTwoMoves);
+	virtual void move(std::vector<Die>& dice, int& value, bool& makeTwoMoves);
 };
 
 #endif // !AIPLAYER_H

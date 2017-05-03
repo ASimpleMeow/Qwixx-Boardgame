@@ -112,6 +112,7 @@ bool makeMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves)
 		return true;
 	}
 	currentPlayer.move(dice, value, makeTwoMoves);
+	printRows(currentPlayer);
 	return true;
 }
 

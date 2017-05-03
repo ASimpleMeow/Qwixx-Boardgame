@@ -25,7 +25,8 @@ bool Player::move(int& board, int& value) {
 	return false;
 }
 
-void Player::move(const std::vector<Die>& dice, int& value, bool& makeTwoMoves) {
+void Player::move(std::vector<Die>& dice, int& value, bool& makeTwoMoves) {
+
 }
 
 int Player::countScore() const {

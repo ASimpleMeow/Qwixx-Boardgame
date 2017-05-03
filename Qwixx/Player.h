@@ -18,7 +18,7 @@ public:
 	Player(bool isHuman, int playerNo);
 	virtual ~Player();
 	virtual bool move(int& board, int& value);
-	virtual void move(const std::vector<Die>& dice, int& value, bool& makeTwoMoves);
+	virtual void move(std::vector<Die>& dice, int& value, bool& makeTwoMoves);
 	int countScore() const;
 	const std::vector<std::vector<std::string>*>* const getBoard();
 	int& getFails();
