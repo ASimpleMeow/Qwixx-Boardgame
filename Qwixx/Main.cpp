@@ -46,7 +46,7 @@ int main() {
 	}
 	prompt = "How many players are playing? : ";
 	makeChoice(userChoice, prompt);
-	while (userChoice > 2 || userChoice > 5) {
+	while (userChoice < 2 || userChoice > 5) {
 		std::cout << "Must be a valid number of 2 or more but 5 and less players\n";
 		prompt = "How many players are playing? : ";
 		makeChoice(userChoice, prompt);
