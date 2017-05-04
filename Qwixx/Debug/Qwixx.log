@@ -1,8 +1,12 @@
-﻿  AIPlayer.cpp
+﻿  Main.cpp
 c:\users\oleksandr\desktop\other\c++  projects\workspace\qwixx\qwixx\player.h(27): warning C4227: anachronism used: qualifiers on reference are ignored
+c:\users\oleksandr\desktop\other\c++  projects\workspace\qwixx\qwixx\main.cpp(26): warning C4227: anachronism used: qualifiers on reference are ignored
+c:\users\oleksandr\desktop\other\c++  projects\workspace\qwixx\qwixx\main.cpp(72): warning C4018: '<': signed/unsigned mismatch
+c:\users\oleksandr\desktop\other\c++  projects\workspace\qwixx\qwixx\main.cpp(154): warning C4018: '>=': signed/unsigned mismatch
+c:\users\oleksandr\desktop\other\c++  projects\workspace\qwixx\qwixx\main.cpp(181): warning C4227: anachronism used: qualifiers on reference are ignored
+  AIPlayer.cpp
+c:\users\oleksandr\desktop\other\c++  projects\workspace\qwixx\qwixx\player.h(27): warning C4227: anachronism used: qualifiers on reference are ignored
+c:\users\oleksandr\desktop\other\c++  projects\workspace\qwixx\qwixx\aiplayer.cpp(120): warning C4018: '<': signed/unsigned mismatch
   Generating Code...
-c:\users\oleksandr\desktop\other\c++  projects\workspace\qwixx\qwixx\aiplayer.cpp(181): warning C4715: 'AIPlayer::determineRowFromDice': not all control paths return a value
-  Skipping... (no relevant changes detected)
-  Main.cpp
   Qwixx.vcxproj -> C:\Users\Oleksandr\Desktop\Other\C++  Projects\workspace\Qwixx\Debug\Qwixx.exe
   Qwixx.vcxproj -> C:\Users\Oleksandr\Desktop\Other\C++  Projects\workspace\Qwixx\Debug\Qwixx.pdb (Full PDB)

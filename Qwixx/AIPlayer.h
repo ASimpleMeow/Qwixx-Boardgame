@@ -17,8 +17,6 @@ private:
 
 	/* Helful Misc Function */
 	void getColourIndex(std::vector<Die>& dice, int& index, bool smallestSize);
-	int& determineRowFromDice(std::vector<Die>& dice, int& dieIndex);
-	void removeDie(std::vector<Die>& dice, const int& rowIndex);
 public:
 	AIPlayer(bool isHuman, int playerNo);
 	~AIPlayer();

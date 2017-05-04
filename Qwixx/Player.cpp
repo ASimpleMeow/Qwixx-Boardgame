@@ -63,3 +63,27 @@ const std::string& const Player::printBoard() {
 	printRow(*m_rows->at(3));
 	return this->m_board;
 }
+
+//Finds and removes the die for the given row index (colour)
+void Player::removeDie(std::vector<Die>& dice, const int& rowIndex) {
+	std::string rowColour = "";
+	if (rowIndex == 0) rowColour = "red";
+	else if (rowIndex == 1) rowColour = "yellow";
+	else if (rowIndex == 2) rowColour = "green";
+	else if (rowIndex == 3) rowColour = "blue";
+
+	for (std::vector<Die>::iterator iter = dice.begin() + 2; iter != dice.end(); ++iter) {
+		if (iter->getColour().compare(rowColour) == 0) {
+			dice.erase(dice.begin() + std::distance(dice.begin(), iter));
+			return;
+		}
+	}
+}
+
+//Determines which row is for which coloured die
+int Player::determineRowFromDice(std::vector<Die>& dice, int& dieIndex) {
+	if (dice.at(dieIndex).getColour().compare("red") == 0)  return 0;
+	if (dice.at(dieIndex).getColour().compare("yellow") == 0)  return 1;
+	if (dice.at(dieIndex).getColour().compare("green") == 0)  return 2;
+	if (dice.at(dieIndex).getColour().compare("blue") == 0)  return 3;
+}

@@ -25,6 +25,8 @@ public:
 	void incrementFails();									//Increment fails for this player
 	const bool& isHuman();									//Return if the player is human
 	const std::string& const printBoard();					//Prepare and return the m_board information
+	void removeDie(std::vector<Die>& dice, const int& rowIndex); //Removes specified Die
+	int determineRowFromDice(std::vector<Die>& dice, int& dieIndex); //Returns row index for die
 };
 
 #endif // !PLAYER_H

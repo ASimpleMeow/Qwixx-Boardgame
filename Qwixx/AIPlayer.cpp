@@ -20,6 +20,7 @@ void AIPlayer::move(std::vector<Die>& dice, int& value, bool& makeTwoMoves) {
 //				- if not, then try to determine the shortest distance between last "X" and this value position
 //Otherwise return false to signify decision to fail first move
 bool AIPlayer::singleMove(std::vector<Die>& dice, const int& value) {
+	if (dice.size() <= 4) return true;
 	for (int i = 0; i < 4; ++i) {
 		if (checkRow(value, i, dice)) return true; //Check if rows can place value at early position
 		//Try to determine the closest next position of no more than two from the last
@@ -34,6 +35,7 @@ bool AIPlayer::singleMove(std::vector<Die>& dice, const int& value) {
 //				- If all else fails, try finalAttempt solution
 //				- (if failed on single move) incremement fails
 void AIPlayer::doubleMove(std::vector<Die>& dice, int& value) {
+	if (dice.size() <= 4) return;
 	bool fail = !singleMove(dice, value);		//Check if a move was not made
 	int smallestColourIndex = 2;
 	int largestColourIndex = 2;
@@ -69,7 +71,7 @@ bool AIPlayer::moveRow(const int& value, int rowIndex, std::vector<Die>& dice) {
 //Checks if the currentRow can hold the value at the early part of the row
 bool AIPlayer::checkRow(const int& value, const int& rowIndex, std::vector<Die>& dice) {
 	int numberIndex = (rowIndex < 2) ? (value - 2) : (12 - value); //value's position on the row
-	if (4 - ((rowIndex<2)?value:12-value) >= 0) {	//Check if value is within allowed distance from the start
+	if (3 - ((rowIndex<2)?value:12-value) >= 0) {	//Check if value is within allowed distance from the start
 		//Check if the position is not already occupied or unavailable
 		if (m_rows->at(rowIndex)->at(numberIndex) != "X" && m_rows->at(rowIndex)->at(numberIndex) != "-") {
 			return completeMove(rowIndex, value, dice);
@@ -114,13 +116,11 @@ bool AIPlayer::checkShortestDistance(int row, const int& value, int minDistance,
 //works, or you fail to find a good move, then fail
 bool AIPlayer::finalAttempt(std::vector<Die>& dice, int& value) {
 
-	for (std::size_t white = 0; white < 2; ++white) {					//White die
-		for (std::size_t colour = 2; colour < dice.size(); ++colour) {	//Colour die
+	for (int white = 0; white < 2; ++white) {					//White die
+		for (int colour = 2; colour < dice.size(); ++colour) {	//Colour die
 			value = dice.at(white).getCurrentDieValue() + dice.at(colour).getCurrentDieValue();
-			for (int i = 0; i < 4; ++i) {									//For every row
-				if (checkRow(value, i, dice)) return true;
-				if (checkShortestDistance(i, value, 4, dice)) return true;
-			}
+			if (checkRow(value, determineRowFromDice(dice, colour), dice)) return true;
+			if (checkShortestDistance(determineRowFromDice(dice, colour), value, 4, dice)) return true;
 		}
 	}
 	return false;
@@ -168,31 +168,6 @@ void AIPlayer::getColourIndex(std::vector<Die>& dice, int& index, bool smallestS
 	for (std::vector<Die>::iterator iter = dice.begin() + 4; iter != dice.end(); ++iter) {
 		if ((*iter).getCurrentDieValue() > dice.at(index).getCurrentDieValue()) {
 			index = std::distance(dice.begin(), iter);
-		}
-	}
-}
-
-//Return the row index from the given die index using the colours
-int& AIPlayer::determineRowFromDice(std::vector<Die>& dice, int& dieIndex) {
-	if (dice.at(dieIndex).getColour().compare("red") == 0)  return (dieIndex = 0);
-	if (dice.at(dieIndex).getColour().compare("yellow") == 0)  return (dieIndex = 1);
-	if (dice.at(dieIndex).getColour().compare("green") == 0)  return (dieIndex = 2);
-	if (dice.at(dieIndex).getColour().compare("blue") == 0)  return (dieIndex = 3);
-}
-
-//Determine which colour die to remove and remove it
-void AIPlayer::removeDie(std::vector<Die>& dice, const int& rowIndex){
-	std::string rowColour = "";
-	if (rowIndex == 0) rowColour = "red";
-	else if (rowIndex == 1) rowColour = "yellow";
-	else if (rowIndex == 2) rowColour = "green";
-	else if (rowIndex == 3) rowColour = "blue";
-
-	//Start iterating from begin()+2 to ignore the two white dice
-	for (std::vector<Die>::iterator iter = dice.begin() + 2; iter != dice.end(); ++iter) {
-		if (iter->getColour().compare(rowColour) == 0) {
-			dice.erase(dice.begin() + std::distance(dice.begin(), iter));
-			return;
 		}
 	}
 }

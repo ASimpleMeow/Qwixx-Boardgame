@@ -26,7 +26,6 @@ bool endGame(std::vector<Player*>& players);
 void rollDice(std::vector<Die>& const dice);
 bool makeMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves, int& userChoice, std::string& prompt);
 void makeSecondMove(Player& currentPlayer, bool& fail, std::vector<Die>& dice, bool& makeTwoMoves, int& userChocie, std::string& prompt);
-void removeDie(std::vector<Die>& dice, const int& rowIndex);
 
 int main() {
 
@@ -90,6 +89,7 @@ int main() {
 
 //Handles move making, since I want all input/output to take place in the main class.
 bool makeMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves, int& userChoice, std::string& prompt) {
+	if (dice.size() <= 4) return true;
 	int value = dice.at(0).getCurrentDieValue() + dice.at(1).getCurrentDieValue(); //white-white dice value
 	if (currentPlayer.isHuman()) {
 		userChoice = 0;
@@ -112,7 +112,7 @@ bool makeMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves,
 				int xCount;	//Counting the occurance of X in the selected row
 				xCount = std::count(currentPlayer.getBoard()->at(userChoice)->begin(), currentPlayer.getBoard()->at(userChoice)->end(), "X");
 				if (value == std::stoi(currentPlayer.getBoard()->at(userChoice)->back()) && xCount < 5) return false;
-				else if (value == std::stoi(currentPlayer.getBoard()->at(userChoice)->back())) removeDie(dice, userChoice);
+				else if (value == std::stoi(currentPlayer.getBoard()->at(userChoice)->back())) currentPlayer.removeDie(dice, userChoice);
 				
 				if (currentPlayer.move(userChoice, value)) break; //If the move returns a false, it will fall through to default
 			default:
@@ -129,6 +129,7 @@ bool makeMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves,
 
 //Second move for the human player white-colour dice combo
 void makeSecondMove(Player& currentPlayer, bool& fail, std::vector<Die>& dice, bool& makeTwoMoves, int& userChoice, std::string& prompt) {
+	if (dice.size() <= 4) return;
 	int value = 0; //Will be the value of white + coloured dice
 	userChoice = 0;
 	while (makeTwoMoves) {
@@ -152,31 +153,15 @@ void makeSecondMove(Player& currentPlayer, bool& fail, std::vector<Die>& dice, b
 		makeChoice(userChoice, prompt);
 		if (userChoice < 2 || userChoice >= dice.size()) continue;
 		value = dice.at(value).getCurrentDieValue() + dice.at(userChoice).getCurrentDieValue();
-		userChoice -= 2; //Since there are 2 white die, I remove it to get row index
+		userChoice = currentPlayer.determineRowFromDice(dice, userChoice);
 
 		//Check to make sure you can't lock the row unless you have 5 or more X in that row
 		int xCount = std::count(currentPlayer.getBoard()->at(userChoice)->begin(), currentPlayer.getBoard()->at(userChoice)->end(), "X");
 		if (value == std::stoi(currentPlayer.getBoard()->at(userChoice)->back()) && xCount < 5) continue;
-		else if (value == std::stoi(currentPlayer.getBoard()->at(userChoice)->back())) removeDie(dice, userChoice);
+		else if (value == std::stoi(currentPlayer.getBoard()->at(userChoice)->back())) currentPlayer.removeDie(dice, userChoice);
 		
 		makeTwoMoves = !currentPlayer.move(userChoice, value); //If move successful, turn off makeTwoMoves
 		if(!makeTwoMoves) printRows(currentPlayer);
-	}
-}
-
-//Finds and removes the die for the given row index (colour)
-void removeDie(std::vector<Die>& dice, const int& rowIndex) {
-	std::string rowColour = "";
-	if (rowIndex == 0) rowColour = "red";
-	else if (rowIndex == 1) rowColour = "yellow";
-	else if (rowIndex == 2) rowColour = "green";
-	else if (rowIndex == 3) rowColour = "blue";
-
-	for (std::vector<Die>::iterator iter = dice.begin() + 2; iter != dice.end(); ++iter) {
-		if (iter->getColour().compare(rowColour) == 0) {
-			dice.erase(dice.begin() + std::distance(dice.begin(), iter));
-			return;
-		}
 	}
 }
 
