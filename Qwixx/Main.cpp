@@ -1,7 +1,16 @@
-//Qwixx Program
+/*
+* Program Name :	Qwixx
+* Author:			Oleksandr Kononov 20071032
+* Subject:			Games Development
+* Course:			Entertainment Systems
+*
+* Notes:			The Main class which will be start of the program.
+*					It will contain the common vector of dice used commonly between
+*					all the players, and the vector of 2-5 players of Player class.
+*/
 
-#include <iostream>
-#include <algorithm>
+#include <iostream>		 //std::cout, std::cin
+#include <algorithm>	 //std::count
 #include "HumanPlayer.h"
 #include "AIPlayer.h"
 #include "Die.h"
@@ -9,101 +18,103 @@
 
 void makeChoice(int& choice,const std::string& prompt);
 bool makeChoiceYesNo(const std::string& prompt);
-void displayMenu();
 void displayRules();
 void displayResults(std::vector<Player*>& players);
 void printRows(Player& player);
 void playerOptions(int& userChoice, const std::string& prompt);
 bool endGame(std::vector<Player*>& players);
 void rollDice(std::vector<Die>& const dice);
-bool makeMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves);
+bool makeMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves, int& userChoice, std::string& prompt);
 void makeSecondMove(Player& currentPlayer, bool& fail, std::vector<Die>& dice, bool& makeTwoMoves, int& userChocie, std::string& prompt);
+void removeDie(std::vector<Die>& dice, const int& rowIndex);
 
 int main() {
 
-	//A clever code that uses a decontructor in order to prevent the
-	//console window from closing (even when exceptions occur)
+	//Using a destructor to "pause" the program console window when the program finishes
+	//since it happens when destructors are called, slow down of the system would be minimal.
 	KeepRunning kr;
 
 	int userChoice = 0;			//User chocie for multiple questions
-	Player* currentPlayer;		//The currentplayer Player
+	Player* pCurrentPlayer;		//The pointer towards current player
 	int currentPlayerNo = 0;	//The index for the current player
 	std::vector<Die> dice{ Die(), Die(), Die("red"), Die("yellow"),Die("green"),Die("blue") };
-	std::vector<Player*> players;
+	std::vector<Player*> players; //Player on the heap
+	std::string prompt = "\nMenu Screen \n1) Start The Game\n2) Read Instructions/Rules\n3) Exit\nYour choice : ";
 
-	std::string prompt = "Your choice : ";
 	std::cout << "Qwixx Game!\n\n";
-
-	backToMenu:
-	displayMenu();
-	makeChoice(userChoice, prompt);
-	if (userChoice == 2) {
-		displayRules();
-		goto backToMenu;
-	} else if (userChoice == 3) {
-		std::cout << "Thank you for playing\n\n";
-		return 0;
+	while (userChoice != 1) {
+		makeChoice(userChoice, prompt);
+		if (userChoice == 2) displayRules();
+		else if (userChoice == 3) {
+			std::cout << "Thank you for playing\n\n";
+			return 0;
+		}
 	}
 	prompt = "How many players are playing? : ";
 	makeChoice(userChoice, prompt);
-	while (userChoice < 2 || userChoice > 5) {
+	while (userChoice < 2 || userChoice > 5) {	//Limit amount of players to 2-5 as per game rules
 		std::cout << "Must be a valid number of 2 or more but 5 and less players\n";
-		prompt = "How many players are playing? : ";
 		makeChoice(userChoice, prompt);
 	}
 
-	//Making userChoice amount of players
+	//Taking user chocie as amount of players to make, and ask user if player is human or ai
 	for (int i = 0; i < userChoice; i++) {
 		prompt = "Is the player " + std::to_string(players.size()) + " human? (y/n): ";
-		if (makeChoiceYesNo(prompt))
-			players.push_back(new HumanPlayer(true, i));
-		else
-			players.push_back(new AIPlayer(false, i));
+		if (makeChoiceYesNo(prompt)) players.push_back(new HumanPlayer(true, i));
+		else players.push_back(new AIPlayer(false, i));
 	}
 
-	currentPlayer = players.at(currentPlayerNo);
+	pCurrentPlayer = players.at(currentPlayerNo);	//point to starting player
 
-	while (!endGame(players)) {
+	while (!endGame(players)) {		//Loop until endGame conditions are met
 		rollDice(dice);
-		bool makeTwoMoves = true;
+		bool makeTwoMoves = true;	//Since rolling player gets two moves(white-white) and (white-colour)
 
 		for (int i = 0; i < players.size(); ++i) {
-			while (!makeMove(*currentPlayer, dice, makeTwoMoves)) {}
-			if (currentPlayer->getFails() >= 4) break;
+			while (!makeMove(*pCurrentPlayer, dice, makeTwoMoves, userChoice, prompt)) {}	//Loop until move complete
+			if (pCurrentPlayer->getFails() >= 4) break;					//If player fails four times break
 			std::cout << "\n\n\n";
 			currentPlayerNo = ++currentPlayerNo%players.size();
-			currentPlayer = players.at(currentPlayerNo);
+			pCurrentPlayer = players.at(currentPlayerNo);
 		}
 		currentPlayerNo = ++currentPlayerNo%players.size();
-		currentPlayer = players.at(currentPlayerNo);
+		pCurrentPlayer = players.at(currentPlayerNo);
 	}
-	displayResults(players);
+	displayResults(players); //Calculate and display results of the game
+
+	//I tried numerous ways to delete the heap Players in the players vector
+	//But it always resulted in exceptions, however, since this is the end of the program
+	//memory will be freed up once the program ends.
 	return 0;
 }
 
-bool makeMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves) {
-	int value = dice.at(0).getCurrentDieValue() + dice.at(1).getCurrentDieValue();
+//Handles move making, since I want all input/output to take place in the main class.
+bool makeMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves, int& userChoice, std::string& prompt) {
+	int value = dice.at(0).getCurrentDieValue() + dice.at(1).getCurrentDieValue(); //white-white dice value
 	if (currentPlayer.isHuman()) {
-		int userChoice = 0;
-		bool fail = false;
-		std::string prompt = "Select an option from the list : ";
+		userChoice = 0;
+		prompt = "Select an option from the list : ";
+		bool fail = false;		//Flag this if the player chooses to pass the turn
 		printRows(currentPlayer);
 		std::cout << "\nTwo white dice value : " << value << "\n";
 		playerOptions(userChoice, prompt);
 		switch (userChoice) {
 			case 2:
-				if (!makeTwoMoves) return true;
+				if (!makeTwoMoves) return true;	//If this player is not the rolling player simply return
 				fail = true;
 				break;
 			case 1:
-				prompt = "What row do you want to use : ";
+				prompt = "What row do you want to use (0-3): ";
 				makeChoice(userChoice, prompt);
 				if (userChoice < 0 || userChoice > 3) return false;
-				int xCount;
+
+				//Check to make sure you can't lock the row unless you have 5 or more X in that row
+				int xCount;	//Counting the occurance of X in the selected row
 				xCount = std::count(currentPlayer.getBoard()->at(userChoice)->begin(), currentPlayer.getBoard()->at(userChoice)->end(), "X");
 				if (value == std::stoi(currentPlayer.getBoard()->at(userChoice)->back()) && xCount < 5) return false;
-				else if(value == std::stoi(currentPlayer.getBoard()->at(userChoice)->back())) dice.erase(dice.begin() + userChoice+2);
-				if (currentPlayer.move(userChoice, value)) break;
+				else if (value == std::stoi(currentPlayer.getBoard()->at(userChoice)->back())) removeDie(dice, userChoice);
+				
+				if (currentPlayer.move(userChoice, value)) break; //If the move returns a false, it will fall through to default
 			default:
 				return false;
 		}
@@ -116,8 +127,9 @@ bool makeMove(Player& currentPlayer, std::vector<Die>& dice, bool& makeTwoMoves)
 	return true;
 }
 
+//Second move for the human player white-colour dice combo
 void makeSecondMove(Player& currentPlayer, bool& fail, std::vector<Die>& dice, bool& makeTwoMoves, int& userChoice, std::string& prompt) {
-	int value = 0;
+	int value = 0; //Will be the value of white + coloured dice
 	userChoice = 0;
 	while (makeTwoMoves) {
 		std::cout << "\n\nWHITE - COLOUR Combo choice";
@@ -125,8 +137,8 @@ void makeSecondMove(Player& currentPlayer, bool& fail, std::vector<Die>& dice, b
 		playerOptions(userChoice, prompt);
 		switch (userChoice) {
 			case 2:
-				if(fail) currentPlayer.incrementFails();
-				makeTwoMoves = false;
+				if(fail) currentPlayer.incrementFails(); //Since the original fail was flagged, incremement fails
+				makeTwoMoves = false; //Prevent other players from getting two moves
 				return;
 			case 1:
 				break;
@@ -139,20 +151,40 @@ void makeSecondMove(Player& currentPlayer, bool& fail, std::vector<Die>& dice, b
 		prompt = "Select a coloured die : ";
 		makeChoice(userChoice, prompt);
 		if (userChoice < 2 || userChoice >= dice.size()) continue;
-		value = dice[value].getCurrentDieValue() + dice[userChoice].getCurrentDieValue();
-		userChoice -= 2;
+		value = dice.at(value).getCurrentDieValue() + dice.at(userChoice).getCurrentDieValue();
+		userChoice -= 2; //Since there are 2 white die, I remove it to get row index
+
+		//Check to make sure you can't lock the row unless you have 5 or more X in that row
 		int xCount = std::count(currentPlayer.getBoard()->at(userChoice)->begin(), currentPlayer.getBoard()->at(userChoice)->end(), "X");
 		if (value == std::stoi(currentPlayer.getBoard()->at(userChoice)->back()) && xCount < 5) continue;
-		else if (value == std::stoi(currentPlayer.getBoard()->at(userChoice)->back())) dice.erase(dice.begin() + userChoice + 2);
-		makeTwoMoves = !currentPlayer.move(userChoice, value);
+		else if (value == std::stoi(currentPlayer.getBoard()->at(userChoice)->back())) removeDie(dice, userChoice);
+		
+		makeTwoMoves = !currentPlayer.move(userChoice, value); //If move successful, turn off makeTwoMoves
 		if(!makeTwoMoves) printRows(currentPlayer);
 	}
 }
 
+//Finds and removes the die for the given row index (colour)
+void removeDie(std::vector<Die>& dice, const int& rowIndex) {
+	std::string rowColour = "";
+	if (rowIndex == 0) rowColour = "red";
+	else if (rowIndex == 1) rowColour = "yellow";
+	else if (rowIndex == 2) rowColour = "green";
+	else if (rowIndex == 3) rowColour = "blue";
+
+	for (std::vector<Die>::iterator iter = dice.begin() + 2; iter != dice.end(); ++iter) {
+		if (iter->getColour().compare(rowColour) == 0) {
+			dice.erase(dice.begin() + std::distance(dice.begin(), iter));
+			return;
+		}
+	}
+}
+
+//Displays player options during the game
 inline void playerOptions(int& userChoice, const std::string& prompt) {
 	std::cout << "\n\nYour options : \n" <<
 		"1) Pick a row for your number\n" <<
-		"2) Don't pick a number (pass and add to fails)\n";
+		"2) Pass\n";
 	makeChoice(userChoice, prompt);
 	if (userChoice != 1 && userChoice != 2) {
 		std::cout << "\n\nIncorrect option selected, please try again!\n\n";
@@ -160,6 +192,7 @@ inline void playerOptions(int& userChoice, const std::string& prompt) {
 	}
 }
 
+//Roll the dice and print out to screen the random values
 inline void rollDice(std::vector<Die>& const dice) {
 	std::cout << "\n\nRolling the Dice! \n";
 	int i = 0;
@@ -171,14 +204,15 @@ inline void rollDice(std::vector<Die>& const dice) {
 	std::cout << "\n\n";
 }
 
+//Condtions for ending the game, 2 locked rows or, 4 or more fails.
 bool endGame(std::vector<Player*>& players) {
-	int count = 0;
-	std::vector<std::vector<std::string>*>::const_iterator boardIter;
+	int count = 0; //Count of locked rows
+	std::vector<std::vector<std::string>*>::const_iterator rowsIter;
 	for (std::vector<Player*>::const_iterator playerIter = players.begin(); playerIter != players.end(); ++playerIter) {
 		if ((*playerIter)->getFails() >= 4) return true;
-		boardIter = (*playerIter)->getBoard()->begin();
-		for (; boardIter != (*(*playerIter)->getBoard()).end(); ++boardIter) {
-			if ((*boardIter)->back() == "X") count++;
+		rowsIter = (*playerIter)->getBoard()->begin();
+		for (; rowsIter != (*(*playerIter)->getBoard()).end(); ++rowsIter) {
+			if ((*rowsIter)->back() == "X") count++;
 			if (count >= 2) return true;
 		}
 		count = 0;
@@ -186,12 +220,14 @@ bool endGame(std::vector<Player*>& players) {
 	return false;
 }
 
+//Get a choice response from the user via prompt and choice (with references)
 inline void makeChoice(int& choice, const std::string& prompt) {
 	std::cout << prompt;
 	std::cin >> choice;
 }
 
-inline bool makeChoiceYesNo(const std::string& prompt) {
+//Get a yes/no response from the user to the prompt
+bool makeChoiceYesNo(const std::string& prompt) {
 	std::cout << prompt;
 	char choice = ' ';
 	std::cin >> choice;
@@ -199,19 +235,23 @@ inline bool makeChoiceYesNo(const std::string& prompt) {
 	return false;
 }
 
+//Print out the current players rows and fails
 inline void printRows(Player& player) {
 	std::cout << "\n" << ((player.isHuman()) ? "Human " : "AI ") << "Player "<< player.getPlayerNo()<<
 		"	Fails : "<<player.getFails()<<"\n";
 	std::cout << player.printBoard() << "\n";
 }
 
+//End game results but counting the X's in a single row and getting the score from the scoring chart
+//Since it's quicker than making a function to dynamically calculate the score
 void displayResults(std::vector<Player*>& players) {
 	std::cout << "\n\nRESULTS\n";
 	int score;
-	std::vector<unsigned int> scoringChart{ 1,3,6,10,15,21,28,36,45,55,66,78 };
+	std::vector<unsigned int> scoringChart{ 1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66, 78 };
 	for (std::vector<Player*>::iterator iter = players.begin(); iter != players.end(); ++iter) {
 		score = 0;
 		for (int row = 0; row < 4; ++row) {
+			//xCount for the currentRow of the current player
 			int xCount = std::count((*iter)->getBoard()->at(row)->begin(), (*iter)->getBoard()->at(row)->end(), "X");
 			score += (xCount > 0)? scoringChart.at(xCount - 1) : 0;
 		}
@@ -220,17 +260,10 @@ void displayResults(std::vector<Player*>& players) {
 	}
 }
 
-
-void displayMenu() {
-	std::cout << "\nMenu Screen \n" <<
-		"1) Start The Game\n" <<
-		"2) Read Instructions/Rules\n" <<
-		"3) Exit\n";
-}
-
+//Display the (rough) rules to the game 
 void displayRules() {
 	std::cout << "\n                               HOW TO PLAY\n\n" <<
-		"You roll 6 dice, then all players(starting from the rolling player) can \nchoose a number off any\n" <<
+		"You roll 6 dice, then all 2-5 players(starting from the rolling player) can \nchoose a number off any\n" <<
 		"row that the two white dice show.\n" <<
 		"Once chosen, the number on the row is crossed off and any number preceeding \nthat one can no longer\n" <<
 		"be selected.\n" <<

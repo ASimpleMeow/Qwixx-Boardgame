@@ -1,5 +1,6 @@
 #include "Player.h"
 
+//Assign the variables and construct the heap rows
 Player::Player(bool isHuman, int playerNo) 
 :m_isHuman(isHuman), m_playerNo(playerNo){
 	m_rows = new std::vector<std::vector<std::string>*>();
@@ -9,29 +10,23 @@ Player::Player(bool isHuman, int playerNo)
 	m_rows->push_back(new std::vector<std::string>({ "12","11","10","9","8","7","6","5","4","3","2" }));
 }
 
+//Deleting the rows from the heap, and the containing vector for the rows
 Player::~Player() {
 	for (std::vector<std::vector<std::string>*>::iterator iter = m_rows->begin(); iter != m_rows->end(); ++iter) {
-		delete (*iter);
+		delete *iter;
 	}
 	delete m_rows;
-	m_rows = 0;
+	m_rows = 0; //Prevent dangling pointers
 }
 
 const std::vector<std::vector<std::string>*>* const Player::getBoard() {
 	return this->m_rows;
 }
 
-bool Player::move(int& board, int& value) {
-	return false;
-}
-
-void Player::move(std::vector<Die>& dice, int& value, bool& makeTwoMoves) {
-
-}
-
-int Player::countScore() const {
-	return 0;
-}
+//Since I will be using polymorphism with Player class, I can't have the whole class be fully abstract
+//So I leave these move functions here
+bool Player::move(int& board, int& value) { return false; }
+void Player::move(std::vector<Die>& dice, int& value, bool& makeTwoMoves) {}
 
 int& Player::getFails(){
 	return this->m_fails;
@@ -49,15 +44,15 @@ const bool& const Player::isHuman() {
 	return this->m_isHuman;
 }
 
+//Format the rows and put it into the row string
 void Player::printRow(const std::vector<std::string>& row) {
-	
 	for (std::vector<std::string>::const_iterator iter = row.begin(); iter != row.end(); ++iter) {
 		this->m_board += (((*iter).size()>1)?"":" ") + *iter + "  ";
 	}
 }
 
+//For every row, prepare the m_board string for it and return it's reference
 const std::string& const Player::printBoard() {
-
 	this->m_board = "0 : Red Row:     ";
 	printRow(*m_rows->at(0));
 	this->m_board += "\n1 : Yellow Row:  "; 
